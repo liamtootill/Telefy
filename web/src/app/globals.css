@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Add any custom base styles or component layers here */
+
+/* Example: Apply a default font and background if needed */
+/* body {
+  @apply font-sans bg-gray-100;
+} */
