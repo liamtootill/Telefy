@@ -1,0 +1,35 @@
+{
+  "name": "ama-agent",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjelz/AMA-AGENT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tjelz/AMA-AGENT/issues"
+  },
+  "homepage": "https://github.com/tjelz/AMA-AGENT#readme",
+  "dependencies": {
+    "@langchain/community": "^0.3.42",
+    "@supabase/supabase-js": "^2.49.4",
+    "dotenv": "^16.5.0",
+    "duck-duck-scrape": "^2.2.7",
+    "langchain": "^0.3.24",
+    "openai": "^4.96.2",
+    "telegraf": "^4.16.3",
+    "twitter-api-v2": "^1.22.0"
+  },
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
