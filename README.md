@@ -96,7 +96,7 @@ $ npm run start
 ## Links
 
 - **X/Twitter:** [Follow us on X/Twitter](https://x.com/telefydotfun)  
-- **Solana Contract:** _Coming soon_
+- **Solana Contract:** AeHx2aBeCexKeoKUCZn24XkJJk3pijsFiBovtsZXpump
 
 ---
 
