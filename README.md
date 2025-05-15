@@ -53,7 +53,7 @@
 
 ```bash
 # Clone the repository
-$ git clone https://github.com/telefydotfun/Telefy.git
+$ git clone https://github.com/Belucard/Telefy.git
 
 # Install dependencies
 $ npm install
