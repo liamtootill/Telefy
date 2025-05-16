@@ -5,6 +5,7 @@ import { createOpenRouterClient } from '../../ai/openrouterClient';
 import { ChatOpenAI } from '@langchain/openai';
 import { ConversationSummaryBufferMemory } from "langchain/memory";
 import { ChatMessageHistory } from "langchain/stores/message/in_memory";
+import { getAgentMemory, saveAgentMemory } from '../../memory/supabaseMemory';
 
 // Define NextFunction type if not available directly
 type NextFunction = () => Promise<void>;
@@ -46,35 +47,30 @@ export const memoryMiddleware = async (ctx: CustomContext, next: NextFunction) =
     return; // Stop processing if no chat ID
   }
 
+  // Use unified agent memory
   let loadedSummary = '';
-  let memoryData: TelegramMemory | null = null;
+  let memoryData = null;
 
   try {
-    memoryData = await getTelegramMemory(chatId);
+    memoryData = await getAgentMemory('global_agent');
     if (!memoryData) {
       // Create a new record with default values
-      await saveTelegramMemory(chatId, '', basePersonality, model, '');
+      await saveAgentMemory('global_agent', '', basePersonality, model, '');
       memoryData = {
-        chat_id: chatId,
+        id: 'global_agent',
         summary: '',
         personality: basePersonality,
         model,
         custom_prompt: ''
       };
     }
-    loadedSummary = memoryData?.summary || ''; // Get existing summary
-    // Compose personality: base + custom_prompt if present
+    loadedSummary = memoryData?.summary || '';
     const customPrompt = memoryData?.custom_prompt?.trim();
     ctx.state.personality = customPrompt ? `${basePersonality}\n${customPrompt}` : basePersonality;
-    ctx.state.model = memoryData?.model || model; // Default model
-    ctx.state.memoryData = memoryData || undefined; // Store as undefined if null
-
-    // Initialize LLM client for this chat
+    ctx.state.model = memoryData?.model || model;
     ctx.state.llm = createOpenRouterClient(ctx.state.model);
-
   } catch (error) {
     console.error('Error loading memory or initializing LLM:', error);
-    // Assign default values even if fetching fails
     ctx.state.personality = basePersonality;
     ctx.state.model = model;
     ctx.state.llm = createOpenRouterClient(ctx.state.model);
@@ -104,30 +100,27 @@ export const memoryMiddleware = async (ctx: CustomContext, next: NextFunction) =
   const messages = await ctx.state.memory.chatHistory.getMessages();
 
   if (messages.length > 0) { // Only save if there was new interaction
-    // Track message count for this chat
     const prevCount = messageCountMap.get(chatId) || 0;
     const newCount = prevCount + 1;
     if (newCount >= MEMORY_UPDATE_INTERVAL) {
       try {
-        // Predict the new summary based on the existing summary and new messages
         const newSummary = await ctx.state.memory.predictNewSummary(
-          messages, 
+          messages,
           ctx.state.loadedSummary
         );
-        // Save the potentially updated summary back to Supabase
-        await saveTelegramMemory(
-          chatId, 
-          newSummary, 
-          ctx.state.personality, 
+        await saveAgentMemory(
+          'global_agent',
+          newSummary,
+          ctx.state.personality,
           ctx.state.model,
           memoryData?.custom_prompt || ''
         );
-        messageCountMap.set(chatId, 0); // Reset counter
+        messageCountMap.set(chatId, 0);
       } catch (error) {
         console.error('Error predicting or saving new summary:', error);
       }
     } else {
-      messageCountMap.set(chatId, newCount); // Update counter only
+      messageCountMap.set(chatId, newCount);
     }
   }
 };
