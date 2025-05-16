@@ -1,6 +1,7 @@
 import { TwitterApi } from 'twitter-api-v2';
 import { config } from '../config';
 import { handleMention } from './handlers/mentionHandler';
+import { handleTweet } from './handlers/tweetHandler';
 
 if (!config.twitterBearerToken) {
   console.warn('Twitter Bearer Token not configured. Twitter bot features disabled.');
@@ -19,6 +20,11 @@ export const startTwitterBot = async () => {
   }
 
   console.log('Starting Twitter bot stream...');
+
+  // Auto-tweet every 30 minutes
+  setInterval(() => {
+    handleTweet(twitterClient);
+  }, 30 * 60 * 1000); // 30 minutes
 
   try {
     const stream = await roClient.v2.searchStream({
